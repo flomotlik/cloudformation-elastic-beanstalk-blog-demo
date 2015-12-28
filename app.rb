@@ -1,6 +1,6 @@
 require 'sinatra'
 
 get '/' do
-  logger.info Time.now.to_s
+  logger.info "Hello World!"
   'Hello world!'
 end

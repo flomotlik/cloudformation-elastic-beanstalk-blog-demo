@@ -1,0 +1,3 @@
+- name: Elastic Beanstalk Deployment
+  service: awsdeployment
+  command: codeship_aws eb_deploy /deploy elasticbeanstalkstack-DockerApplication-LXN85IBCFM4M elas-Samp-1C1XKH4MR8C5E elasticbeanstalkcodeupload

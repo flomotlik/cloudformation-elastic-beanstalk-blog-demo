@@ -1,16 +1,16 @@
 require 'cfndsl'
 
-CloudFormation {
-  Description 'AWS ElasticBeanstalk application with Load Balancing in public subnet and Servers in private subnet'
+CloudFormation do
+  Description 'ElasticBeanstalk application with export to Cloudwatch Logs'
 
-  ElasticBeanstalk_Application('DemoDockerApplication') {
+  ElasticBeanstalk_Application('DemoDockerApplication') do
     Property('Description', 'AWS Elastic Beanstalk Application')
-  }
+  end
 
   Logs_LogGroup('ElasticBeanstalkMainLogGroup')
 
-  ElasticBeanstalk_Environment('DemoEnvironment') {
-    DependsOn ['DemoDockerApplication', 'ElasticBeanstalkMainLogGroup']
+  ElasticBeanstalk_Environment('DemoEnvironment') do
+    DependsOn %w(DemoDockerApplication ElasticBeanstalkMainLogGroup)
     ApplicationName Ref('DemoDockerApplication')
     Description 'AWS Elastic Beanstalk Environment'
     SolutionStackName '64bit Amazon Linux 2015.09 v2.0.4 running Docker 1.7.1'
@@ -19,27 +19,27 @@ CloudFormation {
         Namespace: 'aws:autoscaling:launchconfiguration',
         OptionName: 'IamInstanceProfile',
         Value: Ref('ElasticBeanstalkInstanceProfile')
-    },
-    {
-      Namespace: "aws:elasticbeanstalk:customoption",
-      OptionName: "EBLogGroup",
-      Value: Ref('ElasticBeanstalkMainLogGroup')
-    }]
-  }
+      },
+      {
+        Namespace: 'aws:elasticbeanstalk:customoption',
+        OptionName: 'EBLogGroup',
+        Value: Ref('ElasticBeanstalkMainLogGroup')
+      }]
+  end
 
-  Output('URL') {
+  Output('URL') do
     Description 'The URL of the Elastic Beanstalk environment'
-    Value FnJoin("", ['http://', FnGetAtt('DemoEnvironment', 'EndpointURL')])
-  }
+    Value FnJoin('', ['http://', FnGetAtt('DemoEnvironment', 'EndpointURL')])
+  end
 
   S3_Bucket('ElasticBeanstalkDeploymentBucket')
 
-  Output('EBDeploymentBucketName') {
+  Output('EBDeploymentBucketName') do
     Value Ref('ElasticBeanstalkDeploymentBucket')
-  }
+  end
 
-  IAM_Role('ElasticBeanstalkLoggingRole') {
-    AssumeRolePolicyDocument ({
+  IAM_Role('ElasticBeanstalkLoggingRole') do
+    AssumeRolePolicyDocument(
       Version: '2012-10-17',
       Statement: [{
         Effect: 'Allow',
@@ -48,37 +48,35 @@ CloudFormation {
         },
         Action: ['sts:AssumeRole']
       }]
-    })
+    )
     Path '/'
-    Policies [ {
+    Policies [{
       PolicyName: 'ElasticBeanstalkLogging',
       PolicyDocument: ({
         Version: '2012-10-17',
         "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:GetLogEvents",
-        "logs:PutLogEvents",
-        "logs:DescribeLogGroups",
-        "logs:DescribeLogStreams",
-        "logs:PutRetentionPolicy"
-      ],
-      "Resource": [
-        "arn:aws:logs:us-west-2:*:*"
-      ]
-    }
-  ]
+          {
+            "Effect": 'Allow',
+            "Action": [
+              'logs:CreateLogGroup',
+              'logs:CreateLogStream',
+              'logs:GetLogEvents',
+              'logs:PutLogEvents',
+              'logs:DescribeLogGroups',
+              'logs:DescribeLogStreams',
+              'logs:PutRetentionPolicy'
+            ],
+            "Resource": [
+              'arn:aws:logs:us-west-2:*:*'
+            ]
+          }
+        ]
       })
-      }
-    ]
-  }
+    }]
+  end
 
-  IAM_InstanceProfile('ElasticBeanstalkInstanceProfile') {
+  IAM_InstanceProfile('ElasticBeanstalkInstanceProfile') do
     Path '/'
     Roles [Ref('ElasticBeanstalkLoggingRole')]
-  }
-
-}
+  end
+end

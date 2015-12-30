@@ -3,5 +3,14 @@ awsdeployment:
   env_file: aws_deployment.env
   environment:
     - AWS_DEFAULT_REGION=us-east-1
+    - OUTPUT_FILE_PATH=tmp/outputtemplate.json
+  volumes:
+    - ./:/deploy
+build:
+  build: .
+  env_file: aws_deployment.env
+  environment:
+    - AWS_DEFAULT_REGION=us-east-1
+    - OUTPUT_FILE_PATH=tmp/outputtemplate.json
   volumes:
     - ./:/deploy

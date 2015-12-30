@@ -67,7 +67,7 @@ CloudFormation do
               'logs:PutRetentionPolicy'
             ],
             "Resource": [
-              'arn:aws:logs:us-west-2:*:*'
+              'arn:aws:logs:us-east-1:*:*'
             ]
           }
         ]

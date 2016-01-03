@@ -7,8 +7,6 @@ CloudFormation do
     Property('Description', 'AWS Elastic Beanstalk Application')
   end
 
-  Logs_LogGroup('ElasticBeanstalkMainLogGroup')
-
   ElasticBeanstalk_Environment('DemoEnvironment') do
     DependsOn %w(DemoDockerApplication ElasticBeanstalkMainLogGroup)
     ApplicationName Ref('DemoDockerApplication')
@@ -38,6 +36,8 @@ CloudFormation do
     Value Ref('ElasticBeanstalkDeploymentBucket')
   end
 
+  Logs_LogGroup('ElasticBeanstalkMainLogGroup')
+
   IAM_Role('ElasticBeanstalkLoggingRole') do
     AssumeRolePolicyDocument(
       Version: '2012-10-17',
@@ -58,7 +58,6 @@ CloudFormation do
           {
             "Effect": 'Allow',
             "Action": [
-              'logs:CreateLogGroup',
               'logs:CreateLogStream',
               'logs:GetLogEvents',
               'logs:PutLogEvents',

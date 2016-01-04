@@ -1,16 +1,13 @@
 - name: test with rubocop
   service: build
   command: bundle exec rubocop *.rb
-- type: serial
+- name:
+  service: build
+  command: bundle exec cfndsl infrastructure.template.rb -o /deploy/tmp/outputtemplate.json
+- name: Deploy Cloudformation Stack
   tag: cloudformation
-  steps:
-  - name:
-    service: build
-    command: bundle exec cfndsl infrastructure.template.rb -o /deploy/tmp/outputtemplate.json
-  - name: Deploy Cloudformation Stack
-    tag: cloudformation
-    service: awsdeployment
-    command: /deploy/scripts/deploy_stack.sh
+  service: awsdeployment
+  command: /deploy/scripts/deploy_stack.sh
 - name: Elastic Beanstalk Deployment
   tag: elasticbeanstalk
   service: awsdeployment

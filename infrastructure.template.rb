@@ -78,4 +78,39 @@ CloudFormation do
     Path '/'
     Roles [Ref('ElasticBeanstalkLoggingRole')]
   end
+
+  Logs_MetricFilter('HelloWordMetric') do
+    LogGroupName Ref('ElasticBeanstalkMainLogGroup')
+    FilterPattern 'Hello World'
+    MetricTransformations [
+      {
+        "MetricValue": 1,
+        "MetricName": 'HelloWorldOccurences',
+        "MetricNamespace":
+          FnJoin('/', ['ElasticBeanstalk', Ref('DemoEnvironment')])
+      }
+    ]
+  end
+
+  CloudWatch_Alarm('HelloWorld') do
+    AlarmDescription 'Alert if HelloWorld is sent'
+    MetricName 'HelloWorldOccurences'
+    Namespace FnJoin('/', ['ElasticBeanstalk', Ref('DemoEnvironment')])
+    Statistic 'Sum'
+    Period '60'
+    EvaluationPeriods '1'
+    Threshold '1'
+    ComparisonOperator 'GreaterThanThreshold'
+    AlarmActions [Ref('AlarmNotifications')]
+  end
+
+  SNS_Topic('AlarmNotifications') do
+    DisplayName 'Email Alarm Notification'
+    Subscription [
+      {
+        "Endpoint": 'flomotlik@gmail.com',
+        "Protocol": 'email'
+      }
+    ]
+  end
 end
